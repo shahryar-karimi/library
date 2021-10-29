@@ -51,7 +51,7 @@ public class CustomerController {
     public String buyPack(@RequestHeader String id, @RequestParam String pack) {
         String result;
         if (id == null) {
-            result = new Response(customerProperties.properties.getProperty("UserDidNotLoginResponse")).toJson();
+            result = new Response(customerProperties.properties.getProperty("UserDidNotLoginYetResponse")).toJson();
         } else {
             try {
                 Customer customer = customerService.getById(id);
@@ -69,7 +69,7 @@ public class CustomerController {
     public String chargeWallet(@RequestHeader String id, @RequestParam long amount) {
         String result;
         if (id == null) {
-            result = new Response(customerProperties.properties.getProperty("UserDidNotLoginResponse")).toJson();
+            result = new Response(customerProperties.properties.getProperty("UserDidNotLoginYetResponse")).toJson();
         } else {
             try {
                 Customer customer = customerService.getById(id);

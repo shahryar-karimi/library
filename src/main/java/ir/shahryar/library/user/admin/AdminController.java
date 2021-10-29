@@ -14,24 +14,50 @@ public class AdminController {
 
     @PostMapping("login")
     public String login(@RequestBody Admin admin) {
-        String result;
+        Response result;
         String adminValidationResponse = adminService.validateAdmin(admin);
         if (adminValidationResponse.equals("ok")) {
             String token = adminService.giveToken();
-            result = new Response(token).toJson();
+            result = new Response(token);
         } else {
-            result = new Response(adminValidationResponse).toJson();
+            result = new Response(adminValidationResponse);
         }
-        return result;
+        return result.toJson();
     }
 
-    @PostMapping("changeInfo")
+    @PostMapping("change/Info")
     public String changeInfo(@RequestBody Admin admin) {
         Response result;
         String adminValidationResponse = adminService.validateAdmin(admin);
         if (adminValidationResponse.equals("ok")) {
             Admin oldAdmin = adminService.get();
             result = new Response(adminService.changeInfo(oldAdmin, admin));
+        } else {
+            result = new Response(adminValidationResponse);
+        }
+        return result.toJson();
+    }
+
+    @PostMapping("change/password")
+    public String changePassword(AdminWrapper adminWrapper) {
+        Response result;
+        String adminValidationResponse = adminService.validateAdmin(adminWrapper);
+        if (adminValidationResponse.equals("ok")) {
+            String msg = adminService.changePassword(adminWrapper);
+            result = new Response(msg);
+        } else {
+            result = new Response(adminValidationResponse);
+        }
+        return result.toJson();
+    }
+
+    @PostMapping("change/username")
+    public String changeUsername(AdminWrapper adminWrapper) {
+        Response result;
+        String adminValidationResponse = adminService.validateAdmin(adminWrapper);
+        if (adminValidationResponse.equals("ok")) {
+            String msg = adminService.changeUsername(adminWrapper);
+            result = new Response(msg);
         } else {
             result = new Response(adminValidationResponse);
         }

@@ -9,12 +9,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "admin")
 public class Admin extends User implements JSONable<Admin> {
     @Id
-    private String id;
-    private String username;
-    private String email;
-    private String firstName;
-    private String lastName;
-    private int salary = -1;
+    protected String id;
+    protected String username;
+    protected String email;
+    protected String firstName;
+    protected String lastName;
+    protected int salary = -1;
 
     public String getEmail() {
         return email;

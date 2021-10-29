@@ -12,7 +12,7 @@ public class AdminService {
     @Autowired
     private AdminRepository adminRepository;
     @Autowired
-    private AdminProperties adminProperties;
+    public AdminProperties adminProperties;
 
     public boolean isValidUsername(String username) throws EmptyListException {
         Admin admin = get();
@@ -105,6 +105,29 @@ public class AdminService {
             } else {
                 result = "ok";
             }
+        }
+        return result;
+    }
+
+    public boolean isValidId(String id) {
+        return get().getId().equals(id);
+    }
+
+    public String changeUsername(AdminWrapper adminWrapper) {
+        Admin admin = get();
+        admin.setUsername(adminWrapper.getNewUsername());
+        return "Username changed";
+    }
+
+    public String changePassword(AdminWrapper adminWrapper) {
+        String result;
+        String adminValidationResponse = validateAdmin(adminWrapper);
+        if (adminValidationResponse.equals("ok")) {
+            Admin admin = get();
+            admin.setPassword(adminWrapper.getNewPassword());
+            result = "Password changed";
+        } else {
+            result = adminValidationResponse;
         }
         return result;
     }

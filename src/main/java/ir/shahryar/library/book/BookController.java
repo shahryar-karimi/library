@@ -1,9 +1,9 @@
 package ir.shahryar.library.book;
 
-import ir.shahryar.library.Exception.BookNotFoundException;
 import ir.shahryar.library.Exception.UserNotFoundException;
 import ir.shahryar.library.data.Response;
 import ir.shahryar.library.user.admin.AdminService;
+import ir.shahryar.library.user.customer.Customer;
 import ir.shahryar.library.user.customer.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,60 +23,79 @@ public class BookController {
         return bookService.getAll().toJson();
     }
 
-    @GetMapping("{name}/{author}")
+    @GetMapping("{author}/{name}")
     public String showBook(@PathVariable String name, @PathVariable String author) {
         return bookService.get(name, author).toJson();
     }
 
-    @GetMapping("{author}/getAll")
+    @GetMapping("{author}")
     public String getAllAuthor(@PathVariable String author) {
         return bookService.getAllAuthorsBook(author).toJson();
     }
 
     @PostMapping("add")
-    public String addBook(@RequestBody BookWrapper bookWrapper) {
-        String result = bookService.isValidBookWrapper(bookWrapper).getMessage();
-        if (result.equals("Ok")) {
-            Book book = bookWrapper.getBook();
+    public String addBook(@RequestHeader String id, @RequestBody Book book) {
+        Response result;
+        if (id == null) {
+            result = new Response(adminService.adminProperties.properties.getProperty("UserDidNotLoginYetResponse"));
+        } else {
             if (adminService.isEmpty()) {
-                result = new Response("Request not allowed\nAdmin not found").toJson();
+                result = new Response(adminService.adminProperties.properties.getProperty("NoAdminInDatabaseResponse"));
             } else {
-                if (bookService.findByName(book.getName()) != null) {
-                    result = new Response("This book already exist").toJson();
+                if (adminService.isValidId(id)) {
+                    String bookValidationResponse = bookService.validateBook(book);
+                    if (bookValidationResponse.equals("Book not found")) {
+                        bookService.saveNewBook(book);
+                        result = new Response("This book added successfully!");
+                    } else {
+                        result = new Response(bookValidationResponse);
+                    }
                 } else {
-                    result = bookService.save(book).toJson();
+                    result = new Response(adminService.adminProperties.properties.getProperty("UserNotFoundResponse"));
                 }
             }
         }
-        return result;
+        return result.toJson();
     }
 
     @PostMapping("rent")
-    public String rentBook(@RequestBody BookWrapper bookWrapper) {
-        String result = bookService.isValidBookWrapper(bookWrapper).getMessage();
-        if (result.equals("Ok")) {
-            Book book = bookWrapper.getBook();
+    public String rentBook(@RequestHeader String id, @RequestBody Book book) {
+        Response result;
+        if (id == null) {
+            result = new Response(customerService.customerProperties.properties.getProperty("UserDidNotLoginYetResponse"));
+        } else {
             try {
-                book = bookService.get(book.getName(), bookWrapper.getBook().getAuthor());
-                if (book.getRenterNationalId() == null) {
-                    String nationalId = bookWrapper.getCustomerNationalId();
-                    if (nationalId != null) {
-                        if (customerService.exists(nationalId)) {
-                            book.setRenterNationalId(nationalId);
-                            result = new Response(book + " is rented to " + nationalId).toJson();
-                        } else {
-                            result = new Response("National id not found").toJson();
-                        }
-                    } else {
-                        result = new Response("Input national id").toJson();
-                    }
+                Customer customer = customerService.getById(id);
+                String booksName = book.getName();
+                String booksAuthor = book.getAuthor();
+                String bookExistenceResponse = bookService.exists(booksName, booksAuthor);
+                if (bookExistenceResponse.equals("Book already exist")) {
+                    book = bookService.get(booksName, booksAuthor);
+                    String msg = bookService.rentABook(customer.getNationalId(), book);
+                    result = new Response(msg);
                 } else {
-                    result = new Response("book has rented to: " + book.getRenterNationalId()).toJson();
+                    result = new Response(bookExistenceResponse);
                 }
-            } catch (BookNotFoundException | UserNotFoundException e) {
-                result = new Response(e.getMessage()).toJson();
+            } catch (UserNotFoundException e) {
+                result = new Response(customerService.customerProperties.properties.getProperty("UserNotFoundResponse"));
             }
         }
-        return result;
+        return result.toJson();
+    }
+
+    @PostMapping("giveBack")
+    public String giveBackBook(@RequestBody Book book) {
+        Response result;
+        String booksName = book.getName();
+        String booksAuthor = book.getAuthor();
+        String bookExistenceResponse = bookService.exists(booksName, booksAuthor);
+        if (bookExistenceResponse.equals("Book already exist")) {
+            book = bookService.get(booksName, booksAuthor);
+            String msg = bookService.removeRenter(book);
+            result = new Response(msg);
+        } else {
+            result = new Response(bookExistenceResponse);
+        }
+        return result.toJson();
     }
 }

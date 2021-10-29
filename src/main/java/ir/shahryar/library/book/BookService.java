@@ -2,7 +2,6 @@ package ir.shahryar.library.book;
 
 import ir.shahryar.library.Exception.BookNotFoundException;
 import ir.shahryar.library.Exception.EmptyListException;
-import ir.shahryar.library.data.Response;
 import ir.shahryar.library.util.MyList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,14 +13,8 @@ public class BookService {
     @Autowired
     private BookRepository bookRepository;
 
-    public Book save(Book book) {
-        return bookRepository.save(book);
-    }
-
-    public Book findByName(String name) throws BookNotFoundException {
-        Optional<Book> optionalBook = bookRepository.findByName(name);
-        if (optionalBook.isEmpty()) throw new BookNotFoundException();
-        return optionalBook.get();
+    public void saveNewBook(Book book) {
+        bookRepository.save(book);
     }
 
     public MyList<Book> getAll() throws EmptyListException {
@@ -36,15 +29,14 @@ public class BookService {
         return authorsBooks;
     }
 
-    public String rentABook(String renterNationalId, Book book) throws BookNotFoundException {
-        book = get(book.getName(), book.getAuthor());
+    public String rentABook(String renterNationalId, Book book) {
         book.setRenterNationalId(renterNationalId);
         return "book rented to " + renterNationalId;
     }
 
     public String removeRenter(Book book) {
         book.setRenterNationalId(null);
-        return new Response("Book '" + book.getName() + "' is free").toJson();
+        return "Book '" + book.getName() + "' is free";
     }
 
     public Book get(String name, String author) throws BookNotFoundException {
@@ -53,25 +45,18 @@ public class BookService {
         return optionalBook.get();
     }
 
-    public boolean exists(String name, String author) {
-        return bookRepository.existsBookByNameAndAuthor(name, author);
+    public String exists(String name, String author) {
+        String result;
+        if (name == null) result = "Input books name";
+        else if (author == null) result = "Input books author";
+        else if (bookRepository.existsBookByNameAndAuthor(name, author)) result = "Book already exist";
+        else result = "Book not found";
+        return result;
     }
 
-    public Response isValidBookWrapper(BookWrapper bookWrapper) {
-        Response result;
-        if (bookWrapper.getBook() == null) result = new Response("Input book");
-        else {
-            Book book = bookWrapper.getBook();
-            if (book.getName() == null) result = new Response("Input books name");
-            else if (book.getAuthor() == null) result = new Response("Input books author");
-            else {
-                if (exists(book.getName(), book.getAuthor())) {
-                    result = new Response("Ok");
-                } else {
-                    result = new Response("Book not found");
-                }
-            }
-        }
+    public String validateBook(Book book) {
+        String result = exists(book.getName(), book.getAuthor());
+        if (result.equals("Book not found") && book.getBody() == null) result = "Input books body";
         return result;
     }
 }

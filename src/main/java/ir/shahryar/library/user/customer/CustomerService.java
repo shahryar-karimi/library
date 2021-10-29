@@ -17,7 +17,7 @@ public class CustomerService {
     @Autowired
     private CustomerRepository customerRepository;
     @Autowired
-    private CustomerProperties customerProperties;
+    public CustomerProperties customerProperties;
 
     public Customer getById(String id) throws UserNotFoundException {
         Optional<Customer> optionalCustomer = customerRepository.findById(id);
@@ -28,13 +28,6 @@ public class CustomerService {
     public Customer getByNationalId(String nationalId) throws UserNotFoundException {
         Optional<Customer> optionalCustomer = customerRepository.findByNationalId(nationalId);
         if (optionalCustomer.isEmpty()) throw new UserNotFoundException();
-        return optionalCustomer.get();
-    }
-
-    public Customer getByPassword(String password) throws UserNotFoundException {
-        Optional<Customer> optionalCustomer = customerRepository.findByPassword(password);
-        if (optionalCustomer.isEmpty())
-            throw new UserNotFoundException();
         return optionalCustomer.get();
     }
 
