@@ -5,7 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "book")
-public class Book implements JSONable<Book> {
+public class Book implements JSONable {
     @Id
     private String id;
     private String name;

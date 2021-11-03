@@ -6,8 +6,8 @@ import ir.shahryar.library.util.JSONable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "admin")
-public class Admin extends User implements JSONable<Admin> {
+@Document(collection = "Admin")
+public class Admin extends User implements JSONable {
     @Id
     protected String id;
     protected String username;

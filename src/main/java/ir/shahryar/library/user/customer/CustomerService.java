@@ -4,6 +4,7 @@ import ir.shahryar.library.Exception.AlreadyExistPack;
 import ir.shahryar.library.Exception.UserAlreadyExistException;
 import ir.shahryar.library.Exception.UserNotFoundException;
 import ir.shahryar.library.packs.Pack;
+import ir.shahryar.library.util.props.MyProperties;
 import ir.shahryar.library.wallet.Wallet;
 import ir.shahryar.library.wallet.transaction.TransActionType;
 import ir.shahryar.library.wallet.transaction.Transaction;
@@ -17,7 +18,7 @@ public class CustomerService {
     @Autowired
     private CustomerRepository customerRepository;
     @Autowired
-    public CustomerProperties customerProperties;
+    public MyProperties properties;
 
     public Customer getById(String id) throws UserNotFoundException {
         Optional<Customer> optionalCustomer = customerRepository.findById(id);
@@ -80,15 +81,15 @@ public class CustomerService {
         String nationalId = customer.getNationalId();
         String password = customer.getPassword();
         if (nationalId == null) {
-            result = customerProperties.properties.getProperty("NotEnoughInfo.nationalId");
+            result = properties.getProperty("NotEnoughInfo.nationalId");
         } else if (password == null){
-            result = customerProperties.properties.getProperty("NotEnoughInfo.passwordResponse");
+            result = properties.getProperty("NotEnoughInfo.password");
         } else if (!exists(nationalId)) {
-            result = customerProperties.properties.getProperty("InvalidNationalIdResponse");
+            result = properties.getProperty("InvalidNationalId");
         } else {
             customer = getByNationalId(nationalId);
             if (!isValidPassword(customer, nationalId)) {
-                result = customerProperties.properties.getProperty("InvalidPasswordResponse");
+                result = properties.getProperty("InvalidPassword");
             } else {
                 result = "ok";
             }

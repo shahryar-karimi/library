@@ -2,7 +2,7 @@ package ir.shahryar.library.data;
 
 import ir.shahryar.library.util.JSONable;
 
-public class Response implements JSONable<Response> {
+public class Response implements JSONable {
     private String message;
 
     public Response(String message) {

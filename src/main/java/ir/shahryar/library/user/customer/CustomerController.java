@@ -13,19 +13,17 @@ import org.springframework.web.bind.annotation.*;
 public class CustomerController {
     @Autowired
     private CustomerService customerService;
-    @Autowired
-    private CustomerProperties customerProperties;
 
     @PostMapping("signUp")
     public String signUp(@RequestBody Customer customer) {
         String result;
         if (customer == null) {
-            result = new Response(customerProperties.properties.getProperty("NullCustomerResponse")).toJson();
+            result = new Response(customerService.properties.getProperty("NullCustomer")).toJson();
         } else {
             try {
                 customer.init(0);
                 customer = customerService.saveNewCustomer(customer);
-                result = new Response(customer + customerProperties.properties.getProperty("SignedUpResponse")).toJson();
+                result = new Response(customer + customerService.properties.getProperty("SignedUp")).toJson();
             } catch (UserAlreadyExistException e) {
                 result = new Response(e.getMessage()).toJson();
             }
@@ -51,13 +49,13 @@ public class CustomerController {
     public String buyPack(@RequestHeader String id, @RequestParam String pack) {
         String result;
         if (id == null) {
-            result = new Response(customerProperties.properties.getProperty("UserDidNotLoginYetResponse")).toJson();
+            result = new Response(customerService.properties.getProperty("UserDidNotLoginYet")).toJson();
         } else {
             try {
                 Customer customer = customerService.getById(id);
                 result = new Response(customerService.buyPack(customer, Pack.valueOf(pack))).toJson();
             } catch (UserNotFoundException e) {
-                result = new Response(customerProperties.properties.getProperty("UserNotFoundResponse")).toJson();
+                result = new Response(customerService.properties.getProperty("UserNotFoundResponse")).toJson();
             } catch (AlreadyExistPack e) {
                 result = new Response(e.getMessage()).toJson();
             }
@@ -69,14 +67,30 @@ public class CustomerController {
     public String chargeWallet(@RequestHeader String id, @RequestParam long amount) {
         String result;
         if (id == null) {
-            result = new Response(customerProperties.properties.getProperty("UserDidNotLoginYetResponse")).toJson();
+            result = new Response(customerService.properties.getProperty("UserDidNotLoginYet")).toJson();
         } else {
             try {
                 Customer customer = customerService.getById(id);
                 customerService.chargeWallet(customer, amount);
-                result = new Response(customerProperties.properties.getProperty("ChargedWalletResponse")).toJson();
+                result = new Response(customerService.properties.getProperty("ChargedWallet")).toJson();
             } catch (UserNotFoundException e) {
-                result = new Response(customerProperties.properties.getProperty("UserNotFoundResponse")).toJson();
+                result = new Response(customerService.properties.getProperty("UserNotFoundResponse")).toJson();
+            }
+        }
+        return result;
+    }
+
+    @GetMapping("dashboard")
+    public String showCustomer(@RequestHeader String id) {
+        String result;
+        if (id == null) {
+            result = new Response(customerService.properties.getProperty("UserDidNotLoginYet")).toJson();
+        } else {
+            try {
+                Customer customer = customerService.getById(id);
+                result = customer.toJson();
+            } catch (UserNotFoundException e) {
+                result = new Response(customerService.properties.getProperty("UserNotFoundResponse")).toJson();
             }
         }
         return result;

@@ -8,7 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
-public class Customer extends User implements JSONable<Customer> {
+public class Customer extends User implements JSONable {
     @Id
     private String id;
     private String nationalId;

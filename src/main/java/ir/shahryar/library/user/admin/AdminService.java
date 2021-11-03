@@ -1,6 +1,7 @@
 package ir.shahryar.library.user.admin;
 
 import ir.shahryar.library.Exception.EmptyListException;
+import ir.shahryar.library.util.props.MyProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +13,7 @@ public class AdminService {
     @Autowired
     private AdminRepository adminRepository;
     @Autowired
-    public AdminProperties adminProperties;
+    public MyProperties properties;
 
     public boolean isValidUsername(String username) throws EmptyListException {
         Admin admin = get();
@@ -90,18 +91,18 @@ public class AdminService {
     public String validateAdmin(Admin admin) {
         String result;
         if (isEmpty()) {
-            result = adminProperties.properties.getProperty("NoAdminInDatabaseResponse");
+            result = properties.getProperty("NoAdminInDatabase");
         } else {
             String username = admin.getUsername();
             String password = admin.getPassword();
             if (username == null) {
-                result = adminProperties.properties.getProperty("NotEnoughInfo.usernameResponse");
+                result = properties.getProperty("NotEnoughInfo.username");
             } else if (password == null) {
-                result = adminProperties.properties.getProperty("NotEnoughInfo.passwordResponse");
+                result = properties.getProperty("NotEnoughInfo.password");
             } else if (!isValidUsername(username)) {
-                result = adminProperties.properties.getProperty("InvalidUsernameResponse");
+                result = properties.getProperty("InvalidUsername");
             } else if (!isValidPassword(password)) {
-                result = adminProperties.properties.getProperty("InvalidPasswordResponse");
+                result = properties.getProperty("InvalidPassword");
             } else {
                 result = "ok";
             }
