@@ -92,7 +92,7 @@ public class BookController {
                     result = new Response(bookExistenceResponse);
                 }
             } catch (UserNotFoundException e) {
-                result = new Response(customerService.properties.getProperty("UserNotFoundResponse"));
+                result = new Response(bookService.properties.getProperty("UserNotFoundResponse"));
             }
         }
         return result.toJson();
